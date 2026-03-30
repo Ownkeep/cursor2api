@@ -1295,7 +1295,7 @@ function writeOpenAISSE(res: Response, data: OpenAIChatCompletionChunk): void {
  * 注意：与 Chat Completions 的 "data: {json}\n\n" 不同，Responses API 需要 event: 前缀
  */
 function writeResponsesSSE(res: Response, eventType: string, data: Record<string, unknown>): void {
-    res.write(`event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`);
+    res.write(`event: ${eventType}\ndata: ${JSON.stringify({ type: eventType, ...data })}\n\n`);
     if (typeof (res as unknown as { flush: () => void }).flush === 'function') {
         (res as unknown as { flush: () => void }).flush();
     }
@@ -1458,10 +1458,10 @@ function emitResponsesTextStream(
     const allOutputItems = toolCallItems ? [...toolCallItems, messageItem] : [messageItem];
 
     // 1. response.created
-    writeResponsesSSE(res, 'response.created', buildResponseObject(respId, model, 'in_progress', []));
+    writeResponsesSSE(res, 'response.created', { response: buildResponseObject(respId, model, 'in_progress', []) });
 
     // 2. response.in_progress
-    writeResponsesSSE(res, 'response.in_progress', buildResponseObject(respId, model, 'in_progress', []));
+    writeResponsesSSE(res, 'response.in_progress', { response: buildResponseObject(respId, model, 'in_progress', []) });
 
     // 3. 文本 output item
     writeResponsesSSE(res, 'response.output_item.added', {
@@ -1516,7 +1516,7 @@ function emitResponsesTextStream(
     });
 
     // 9. response.completed — ★ 这是 Codex 等待的关键事件
-    writeResponsesSSE(res, 'response.completed', buildResponseObject(respId, model, 'completed', allOutputItems, usage));
+    writeResponsesSSE(res, 'response.completed', { response: buildResponseObject(respId, model, 'completed', allOutputItems, usage) });
 }
 
 /**
@@ -1624,8 +1624,8 @@ async function handleResponsesStream(
                 log.recordToolCalls(toolCalls);
                 log.updateSummary({ toolCallsDetected: toolCalls.length });
                 // 1. response.created + response.in_progress
-                writeResponsesSSE(res, 'response.created', buildResponseObject(respId, model, 'in_progress', []));
-                writeResponsesSSE(res, 'response.in_progress', buildResponseObject(respId, model, 'in_progress', []));
+                writeResponsesSSE(res, 'response.created', { response: buildResponseObject(respId, model, 'in_progress', []) });
+                writeResponsesSSE(res, 'response.in_progress', { response: buildResponseObject(respId, model, 'in_progress', []) });
 
                 const allOutputItems: Record<string, unknown>[] = [];
                 let outputIndex = 0;
@@ -1713,7 +1713,7 @@ async function handleResponsesStream(
                 }
 
                 // 4. response.completed — ★ Codex 等待的关键事件
-                writeResponsesSSE(res, 'response.completed', buildResponseObject(respId, model, 'completed', allOutputItems, usage));
+                writeResponsesSSE(res, 'response.completed', { response: buildResponseObject(respId, model, 'completed', allOutputItems, usage) });
             } else {
                 // 工具调用解析失败（误报）→ 作为纯文本发送
                 const msgItemId = responsesItemId();
@@ -1734,7 +1734,7 @@ async function handleResponsesStream(
         try {
             const errorText = `[Error: ${message}]`;
             const errorItemId = responsesItemId();
-            writeResponsesSSE(res, 'response.created', buildResponseObject(respId, model, 'in_progress', []));
+            writeResponsesSSE(res, 'response.created', { response: buildResponseObject(respId, model, 'in_progress', []) });
             writeResponsesSSE(res, 'response.output_item.added', {
                 output_index: 0,
                 item: { id: errorItemId, type: 'message', role: 'assistant', status: 'in_progress', content: [] },
@@ -1757,10 +1757,10 @@ async function handleResponsesStream(
                 output_index: 0,
                 item: { id: errorItemId, type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: errorText, annotations: [] }] },
             });
-            writeResponsesSSE(res, 'response.completed', buildResponseObject(respId, model, 'completed', [{
+            writeResponsesSSE(res, 'response.completed', { response: buildResponseObject(respId, model, 'completed', [{
                 id: errorItemId, type: 'message', role: 'assistant', status: 'completed',
                 content: [{ type: 'output_text', text: errorText, annotations: [] }],
-            }], { input_tokens: 0, output_tokens: 10, total_tokens: 10 }));
+            }], { input_tokens: 0, output_tokens: 10, total_tokens: 10 }) });
         } catch { /* ignore double error */ }
     } finally {
         clearInterval(keepaliveInterval);
