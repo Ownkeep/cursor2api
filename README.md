@@ -1,8 +1,11 @@
 # Cursor2API v2.7.8
 
+> 20260401 Cursor文档页仅剩gemini-3-flash （凉）
+
 将 Cursor 文档页免费 AI 对话接口代理转换为 **Anthropic Messages API** 和 **OpenAI Chat Completions API**，支持 **Claude Code** 和 **Cursor IDE** 使用。
 
 > ⭐ **v2.7.8 新特性**：新增上下文压力膨胀（Context Pressure Inflation）、自适应历史预算、工具结果智能截断三大防截断机制，从根源缓解 `max_output_token` 截断问题。全部默认关闭，按需开启。
+
 
 ## 原理
 
