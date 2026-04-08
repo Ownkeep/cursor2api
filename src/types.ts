@@ -155,6 +155,9 @@ export interface AppConfig {
     sanitizeEnabled: boolean;    // 是否启用响应内容清洗（替换 Cursor 身份引用为 Claude），默认 false
     contextPressure?: number;    // 上下文压力膨胀系数（默认 1.35），虚增 input_tokens 让客户端提前压缩
     refusalPatterns?: string[];  // 自定义拒绝检测规则（追加到内置列表之后）
+    systemPrompt?: string;     // 自定义系统提示词，覆盖 Cursor 内置的文档助手身份
+    cookie?: string;           // Cursor 请求携带的 Cookie（用于通过 Vercel 安全验证）
+    stealthProxy?: string;     // Stealth 代理地址（如 http://stealth-proxy:3011），配置后通过无头浏览器转发请求
     fingerprint: {
         userAgent: string;
     };

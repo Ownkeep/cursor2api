@@ -30,7 +30,7 @@ timeout: 120
 # proxy: "http://127.0.0.1:7890"
 
 # Cursor 使用的模型
-cursor_model: "anthropic/claude-sonnet-4.6"
+cursor_model: "google/gemini-3-flash"
 
 # ==================== 自动续写配置 ====================
 # 当模型输出被截断时，自动发起续写请求的最大次数
@@ -204,9 +204,32 @@ tools:
 #   - "无法为您提供"
 #   - "this request is outside"
 
+# ==================== 自定义系统提示词（覆盖 Cursor 内置身份） ====================
+# 配置后会作为最高优先级指令注入对话开头，覆盖 Cursor 的"文档助手"身份
+# 支持热重载，修改后下一次请求即生效
+# 环境变量: SYSTEM_PROMPT="your prompt here"
+# system_prompt: |
+#   You are Claude, a helpful AI assistant made by Anthropic.
+#   You are knowledgeable, honest, and direct.
+#   Answer questions thoroughly and helpfully.
+
+# ==================== Stealth 代理（推荐，自动绕过 Vercel Bot Protection） ====================
+# 配合独立部署的 stealth-proxy 服务使用
+# stealth-proxy 通过无头 Chrome 浏览器代理请求，自动处理 Vercel JS Challenge
+# 配置后所有 Cursor API 请求将通过 stealth-proxy 转发，无需手动管理 cookie
+# 环境变量: STEALTH_PROXY=http://stealth-proxy:3011
+# stealth_proxy: "http://stealth-proxy:3011"
+
+# ==================== Cursor Cookie（手动方式，通过 Vercel 安全验证） ====================
+# Cursor 网站启用了 Vercel 安全检查点，需要携带有效 Cookie 才能正常访问 API
+# 获取方式：浏览器打开 cursor.com → F12 开发者工具 → Network → 复制任意请求的 Cookie 头
+# 关键 Cookie：_vcrcs（Vercel 验证令牌），过期后需重新获取
+# 环境变量: CURSOR_COOKIE="your_cookie_string"
+# cookie: "generaltranslation.locale-routing-enabled=true; _vcrcs=..."
+
 # 浏览器指纹配置
 fingerprint:
-  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
 
 # ==================== 视觉处理降级配置（可选） ====================
 # 如果开启，可以拦截您发给大模型的图片进行降级处理（因为目前免费 Cursor 不支持视觉）。

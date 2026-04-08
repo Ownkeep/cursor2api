@@ -12,6 +12,7 @@ npm-debug.log
 
 # 构建中间产物和测试文件
 deploy.sh
+deploy-all.sh
 *.zip
 *.tar.gz
 test*.txt

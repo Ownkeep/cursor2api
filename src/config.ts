@@ -51,6 +51,12 @@ function parseYamlConfig(defaults: AppConfig): { config: AppConfig; raw: Record<
                 proxy: yaml.vision.proxy || undefined,
             };
         }
+        // ★ 自定义系统提示词
+        if (yaml.system_prompt) result.systemPrompt = String(yaml.system_prompt);
+        // ★ Cursor Cookie（用于通过 Vercel 安全验证）
+        if (yaml.cookie) result.cookie = String(yaml.cookie);
+        // ★ Stealth 代理
+        if (yaml.stealth_proxy) result.stealthProxy = String(yaml.stealth_proxy);
         // ★ API 鉴权 token
         if (yaml.auth_tokens) {
             result.authTokens = Array.isArray(yaml.auth_tokens)
@@ -204,6 +210,12 @@ function applyEnvOverrides(cfg: AppConfig): void {
         cfg.contextPressure = parseFloat(process.env.CONTEXT_PRESSURE);
     }
 
+    // 自定义系统提示词环境变量覆盖
+    if (process.env.SYSTEM_PROMPT) cfg.systemPrompt = process.env.SYSTEM_PROMPT;
+    // Cookie 环境变量覆盖
+    if (process.env.CURSOR_COOKIE) cfg.cookie = process.env.CURSOR_COOKIE;
+    // Stealth 代理环境变量覆盖
+    if (process.env.STEALTH_PROXY) cfg.stealthProxy = process.env.STEALTH_PROXY;
     // 从 base64 FP 环境变量解析指纹
     if (process.env.FP) {
         try {
@@ -228,7 +240,7 @@ function defaultConfig(): AppConfig {
         maxHistoryTokens: 150000,
         sanitizeEnabled: false,  // 默认关闭响应内容清洗
         fingerprint: {
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
         },
     };
 }
@@ -273,6 +285,10 @@ function detectChanges(oldCfg: AppConfig, newCfg: AppConfig): string[] {
 
     if (JSON.stringify(oldCfg.refusalPatterns) !== JSON.stringify(newCfg.refusalPatterns)) changes.push(`refusal_patterns: ${oldCfg.refusalPatterns?.length || 0} → ${newCfg.refusalPatterns?.length || 0} rule(s)`);
 
+    // cookie
+    if (oldCfg.cookie !== newCfg.cookie) changes.push(`cookie: ${oldCfg.cookie ? '(set)' : '(none)'} → ${newCfg.cookie ? '(set)' : '(none)'}`);
+    // stealth_proxy
+    if (oldCfg.stealthProxy !== newCfg.stealthProxy) changes.push(`stealth_proxy: ${oldCfg.stealthProxy || '(none)'} → ${newCfg.stealthProxy || '(none)'}`);
     // fingerprint
     if (oldCfg.fingerprint.userAgent !== newCfg.fingerprint.userAgent) changes.push('fingerprint: (changed)');
 

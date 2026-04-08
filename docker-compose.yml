@@ -22,7 +22,7 @@ services:
       # - PROXY=http://host.docker.internal:7890
 
       # [可选环境变量] 以下变量如果声明，将会覆盖 config.yaml 中对应的配置：
-      # - CURSOR_MODEL=anthropic/claude-sonnet-4.6
+      - CURSOR_MODEL=google/gemini-3-flash
 
       # ── API 鉴权 ──
       # 公网部署时强烈建议开启，多个 token 用逗号分隔
@@ -83,6 +83,11 @@ services:
       # ── 智能截断 ──
       # 按工具类型差异化截断结果（Read/Bash/Search 各用不同头尾比例）
       # - TOOLS_SMART_TRUNCATION=true
+
+      # ── Stealth 代理（绕过 Vercel Bot Protection） ──
+      # 镜像已内置 stealth-proxy，设置 ENABLE_STEALTH=true 即可自动启动
+      # 无需额外容器，stealth-proxy 在同一容器内运行并自动连接
+      - ENABLE_STEALTH=true
 
       # ── 响应内容清洗 ──
       # 开启后会将响应中 Cursor 身份引用替换为 Claude（默认关闭）

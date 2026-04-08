@@ -3,11 +3,6 @@
 *.dll
 *.so
 *.dylib
-cursor2api
-
-# Go
-vendor/
-*.test
 
 # Node
 node_modules/
@@ -29,7 +24,7 @@ logs/
 
 # Environment
 .env
-.env.local
+*.env.local
 
 # Build
 dist/
@@ -38,6 +33,9 @@ build/
 
 # Config (contains sensitive tokens, use config.yaml.example as template)
 config.yaml
+
+# Database
+*.db
 
 # Screenshots (dev artifacts)
 *.png
@@ -51,11 +49,6 @@ test/ctf-*-results.json
 # Vue UI build output and dependencies
 public/vue/
 vue-ui/node_modules/
-cursor2claude 重构计划.md
-CLAUDE.md
-config-dev.yaml
-config-local.yaml
-deploy-cursor2api.sh
-deploy-gost.sh
-docker-compose-dev.yml
-docker-compose-local.yml
+
+# Deploy scripts (contain sensitive server info)
+deploy-all.sh
